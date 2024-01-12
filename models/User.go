@@ -12,5 +12,6 @@ type User struct {
 	ImageBg       string
 	Description   string
 	Post          []Post          `gorm:"foreignKey:UserID"`
-	Notifications []Notifications `gorm:"foreignKey:NotificationID"`
+	Notifications []Notifications `gorm:"foreignKey:UserID"`
+	Friends       []Friends       `gorm:"foreignKey:UserID"`
 }

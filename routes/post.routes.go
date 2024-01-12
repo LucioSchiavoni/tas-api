@@ -8,4 +8,5 @@ import (
 func PostRoutes(router *mux.Router) {
 
 	router.HandleFunc("/post", controllers.CreatePost).Methods("POST")
+
 }

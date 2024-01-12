@@ -13,25 +13,28 @@ import (
 func main() {
 	fmt.Println("Corriendo server en go")
 
-	db.DBConnection()
-
 	r := mux.NewRouter()
 
-	routes.UserRouter(r)
-	routes.PostRoutes(r)
-	routes.NotificationRouter(r)
+	db.DBConnection()
 
 	// Conexion
 	if isDevelopment() {
 		db.DB.AutoMigrate(models.User{})
 		db.DB.AutoMigrate(models.Post{})
 		db.DB.AutoMigrate(models.Notifications{})
+		db.DB.AutoMigrate(models.Comments{})
+		db.DB.AutoMigrate(models.Likes{})
+		db.DB.AutoMigrate(models.Friends{})
 	}
+
+	routes.UserRouter(r)
+	routes.PostRoutes(r)
+	routes.NotificationRouter(r)
 
 	http.ListenAndServe(":8080", nil)
 
 }
 
 func isDevelopment() bool {
-	return false
+	return true
 }

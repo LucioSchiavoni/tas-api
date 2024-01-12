@@ -7,4 +7,5 @@ import (
 
 func UserRouter(router *mux.Router) {
 	router.HandleFunc("/user", controllers.CreateUser).Methods("POST")
+	router.HandleFunc("/userById", controllers.GetUserById).Methods("GET")
 }
