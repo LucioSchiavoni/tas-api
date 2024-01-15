@@ -31,10 +31,10 @@ func main() {
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", r)
 
 }
 
 func isDevelopment() bool {
-	return true
+	return false
 }
