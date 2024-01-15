@@ -13,3 +13,13 @@ Create post: POST /post
 
 Post by user id: GET /post/user_id
 
+
+Like:
+
+Crear like: POST /like  
+ejemplo 
+raw:
+{
+    "UserID":2,  //usuario que da el like
+    "PostID":1   // id del post
+}

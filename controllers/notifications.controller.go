@@ -93,12 +93,39 @@ func GetLikesByIdPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	json.NewEncoder(w).Encode(&likes)
+
+	likesCount := len(likes)
+
+	// json.NewEncoder(w).Encode(map[string]int{"likesCount ": likesCount})
+	json.NewEncoder(w).Encode(&likesCount)
 }
 
 // Comments
 func CreateComments(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Funcion para crear los comentarios"))
+	w.Header().Set("Content-Type", "json/application")
+	var comments models.Comments
+	json.NewDecoder(r.Body).Decode(&comments)
+
+	if !userExists(comments.UserID) {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "UserID no válido"})
+		return
+	}
+
+	if !postExists(comments.PostID) {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "PostID no válido"})
+		return
+	}
+
+	createComment := db.DB.Create(&comments)
+	if createComment.Error != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(createComment.Error.Error()))
+	}
+
+	json.NewEncoder(w).Encode(&comments)
+
 }
 
 func GetCommentsByIdPost(w http.ResponseWriter, r *http.Request) {
