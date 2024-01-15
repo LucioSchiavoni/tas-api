@@ -9,6 +9,7 @@ import (
 
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -117,10 +118,40 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // Todos los usuarios
 func GetAllUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Funcion para traer todos los usuarios"))
+	var users []models.User
+	db.DB.Find(&users)
+	json.NewEncoder(w).Encode(&users)
+
+}
+
+//Borrar usuario
+
+func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var user models.User
+	db.DB.First(&user, params["id"])
+	if user.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("User not found"))
+		return
+	}
+
+	db.DB.Delete(&user)
+	w.WriteHeader(http.StatusOK)
 }
 
 // Obtener usuario por su id
 func GetUserById(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Obtener usuario by ID"))
+	params := mux.Vars(r)
+	var user models.User
+	db.DB.First(&user, params["id"])
+
+	if user.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("User not found"))
+		return
+	}
+
+	db.DB.Model(&user).Association("Posts").Find(&user.Post)
+	json.NewEncoder(w).Encode(&user)
 }

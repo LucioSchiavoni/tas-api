@@ -10,6 +10,6 @@ type Notifications struct {
 	Type     string
 	Post     Post `gorm:"foreignKey:PostID"`
 	PostID   uint `gorm:"foreignKey:PostID"`
-	Check    bool
+	Check    bool `gorm:"default:false"`
 	UserFrom uint
 }

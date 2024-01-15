@@ -7,4 +7,5 @@ import (
 
 func NotificationRouter(router *mux.Router) {
 	router.HandleFunc("/notification", controllers.CreateNotification).Methods("POST")
+	router.HandleFunc("/like", controllers.CreateLike).Methods("POST")
 }
