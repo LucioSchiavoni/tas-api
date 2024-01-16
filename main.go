@@ -7,6 +7,7 @@ import (
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/LucioSchiavoni/tas-api/routes"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -16,6 +17,12 @@ func main() {
 	r := mux.NewRouter()
 
 	db.DBConnection()
+
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	http.Handle("/", handlers.CORS(headersOk, originsOk, methodsOk)(r))
 
 	// Conexion
 	if isDevelopment() {

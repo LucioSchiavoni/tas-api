@@ -86,3 +86,19 @@ func GetAllPost(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(&post)
 }
+
+func DeletePost(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var post models.Post
+
+	db.DB.First(&post, params["id"])
+	if post.ID == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Post no encontrado"))
+	}
+
+	db.DB.Delete(&post)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Post borrado correctamente!"))
+
+}

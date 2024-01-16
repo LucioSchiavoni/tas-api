@@ -84,6 +84,7 @@ func postExists(postID uint) bool {
 }
 
 func GetLikesByIdPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
 	params := mux.Vars(r)
 	postId := params["post_id"]
 	userId := params["user_id"]
