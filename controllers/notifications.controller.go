@@ -34,9 +34,15 @@ func GetNotificationByUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	userID := params["user_id"]
-	var notifications models.Notifications
+	var notifications []models.Notifications
 
-	db.DB.Where("user_id = ?", userID).Find(&notifications)
+	result := db.DB.Preload("User").Preload("Post").Preload("Creator").Where("user_id = ?", userID).Find(&notifications)
+
+	if result.Error != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error al cargar la notificacion"})
+		return
+	}
 
 	json.NewEncoder(w).Encode(&notifications)
 }
