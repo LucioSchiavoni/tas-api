@@ -41,3 +41,15 @@ raw:
 Commentarios por id del post:
 GET  /{post_id}/comments
 
+
+Ver notificaciones que le llegan al usuario:
+GET /notificationByUser/1
+
+Esto devuelve:
+ID: (id de notificacion)
+CreatedAt
+UserID: (id del que recibe esta notificacion)
+Type: si es de tipo comments o like
+PostID: id de ese post creado
+Check: por defecto viene en falso pero al verlo debe cambiar a true 
+CreatorID: id del usuario que hizo la notificacion (persona que hizo el like o creo el comentario)

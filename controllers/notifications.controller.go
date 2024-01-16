@@ -30,6 +30,7 @@ func CreateNotification(w http.ResponseWriter, r *http.Request, userID, userForm
 }
 
 func GetNotificationByUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
 	params := mux.Vars(r)
 
 	userID := params["user_id"]
