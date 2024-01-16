@@ -118,6 +118,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // Todos los usuarios
 func GetAllUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
 	var users []models.User
 	db.DB.Find(&users)
 	json.NewEncoder(w).Encode(&users)
@@ -142,6 +143,7 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 
 // Obtener usuario por su id
 func GetUserById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
 	params := mux.Vars(r)
 	var user models.User
 	db.DB.First(&user, params["id"])

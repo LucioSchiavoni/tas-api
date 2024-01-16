@@ -13,6 +13,8 @@ Create post: POST /post
 
 Post by user id: GET /post/user_id
 
+Todos los Post: GET /AllPost  
+
 
 Like:
 
@@ -23,3 +25,17 @@ raw:
     "UserID":2,  //usuario que da el like
     "PostID":1   // id del post
 }
+
+Comentarios: 
+
+Crear comentario: POST /comments
+raw:
+{   
+    "UserID":
+    "PostID":
+    "content":"hola"
+}
+
+Commentarios por id del post:
+GET  /{post_id}/comments
+

@@ -62,6 +62,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPostByIdUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
 	params := mux.Vars(r)
 
 	userID := params["user_id"]
@@ -70,5 +71,18 @@ func GetPostByIdUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+	json.NewEncoder(w).Encode(&post)
+}
+
+func GetAllPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
+
+	var post []models.Post
+
+	if err := db.DB.Find(&post).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
 	json.NewEncoder(w).Encode(&post)
 }

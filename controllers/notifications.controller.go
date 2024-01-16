@@ -129,5 +129,16 @@ func CreateComments(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCommentsByIdPost(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Funcion para traer los comentarios por el id del post"))
+	w.Header().Set("Content-Type", "json/application")
+	params := mux.Vars(r)
+	postId := params["post_id"]
+
+	var comments []models.Comments
+
+	if err := db.DB.Where("post_id = ?", postId).Find(&comments).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(&comments)
 }
