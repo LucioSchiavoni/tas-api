@@ -22,8 +22,9 @@ Crear like: POST /like
 ejemplo 
 raw:
 {
-    "UserID":2,  //usuario que da el like
+    "UserID":2,  //usuario que creo el post
     "PostID":1   // id del post
+    "CreatorID":  //usuario que da el like
 }
 
 Comentarios: 
@@ -34,6 +35,7 @@ raw:
     "UserID":
     "PostID":
     "content":"hola"
+    "CreatorID" : 
 }
 
 Commentarios por id del post:

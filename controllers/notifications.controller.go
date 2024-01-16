@@ -10,37 +10,34 @@ import (
 )
 
 // Notification
-func CreateNotification(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "json/application")
+func CreateNotification(w http.ResponseWriter, r *http.Request, userID, userForm, postID uint, typeNotifications string) {
+
 	var notifications models.Notifications
 
-	err := json.NewDecoder(r.Body).Decode(&notifications)
+	notifications.UserID = userID
+	notifications.PostID = postID
+	notifications.CreatorID = userForm
+	notifications.Type = typeNotifications
 
-	if err != nil {
+	if err := db.DB.Create(&notifications).Error; err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error de formato JSON"})
-		return
-	}
-
-	if notifications.Type == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Campo type vacio"})
-		return
-	}
-
-	createNotification := db.DB.Create(&notifications)
-	err = createNotification.Error
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Error al crear la notificacion"))
 		return
 	}
 
 	json.NewEncoder(w).Encode(&notifications)
+
 }
 
 func GetNotificationByUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Funcion para traer las notificaciones por el id del usuario que las recibe (UserID)"))
+	params := mux.Vars(r)
+
+	userID := params["user_id"]
+	var notifications models.Notifications
+
+	db.DB.Where("user_id = ?", userID).Find(&notifications)
+
+	json.NewEncoder(w).Encode(&notifications)
 }
 
 // Likes
@@ -68,6 +65,7 @@ func CreateLike(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(createLike.Error.Error()))
 	}
 
+	CreateNotification(w, r, like.UserID, like.CreatorID, like.PostID, "like")
 	json.NewEncoder(w).Encode(&like)
 }
 
@@ -97,7 +95,6 @@ func GetLikesByIdPost(w http.ResponseWriter, r *http.Request) {
 
 	likesCount := len(likes)
 
-	// json.NewEncoder(w).Encode(map[string]int{"likesCount ": likesCount})
 	json.NewEncoder(w).Encode(&likesCount)
 }
 
@@ -125,6 +122,7 @@ func CreateComments(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(createComment.Error.Error()))
 	}
 
+	CreateNotification(w, r, comments.UserID, comments.CreatorID, comments.PostID, "comments")
 	json.NewEncoder(w).Encode(&comments)
 
 }
