@@ -69,6 +69,7 @@ func GetPostByIdUser(w http.ResponseWriter, r *http.Request) {
 	var post []models.Post
 	if err := db.DB.Where("user_id = ?", userID).Find(&post).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		w.Write([]byte("ID no encontrado"))
 		return
 	}
 	json.NewEncoder(w).Encode(&post)
@@ -79,7 +80,7 @@ func GetAllPost(w http.ResponseWriter, r *http.Request) {
 
 	var post []models.Post
 
-	if err := db.DB.Find(&post).Error; err != nil {
+	if err := db.DB.Preload("User").Preload("Likes").Preload("Likes.User").Preload("Comments").Preload("Comments.User").Find(&post).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
