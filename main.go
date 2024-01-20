@@ -31,8 +31,17 @@ func main() {
 	routes.UserRouter(r)
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
+	corsOptions := cors.New(cors.Options{
+		AllowedOrigins: []string{
+			"http://localhost:5173",
+			// "http://localhost:3000",
+		},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
 
-	handler := cors.Default().Handler(r)
+	handler := corsOptions.Handler(r)
 
 	http.ListenAndServe(":8080", handler)
 
