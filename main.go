@@ -7,8 +7,8 @@ import (
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/LucioSchiavoni/tas-api/routes"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -17,12 +17,6 @@ func main() {
 	r := mux.NewRouter()
 
 	db.DBConnection()
-
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-
-	http.Handle("/", handlers.CORS(headersOk, originsOk, methodsOk)(r))
 
 	// Conexion
 	if isDevelopment() {
@@ -38,7 +32,9 @@ func main() {
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
 
-	http.ListenAndServe(":8080", r)
+	handler := cors.Default().Handler(r)
+
+	http.ListenAndServe(":8080", handler)
 
 }
 
