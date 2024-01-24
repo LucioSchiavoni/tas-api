@@ -26,7 +26,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("The user request value %v", loginCredentials)
+	// fmt.Printf("The user request value %v", loginCredentials)
 
 	var user models.User
 	result := db.DB.Where("email = ?", loginCredentials.Email).First(&user)
@@ -42,7 +42,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := middlewares.CreateToken(user.Username, user.Email)
+	tokenString, err := middlewares.CreateToken(user.Username, user.Email, user.Image, user.ImageBg, user.Description)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Error generando el token")
@@ -72,8 +72,11 @@ func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
 
 	username, ok := claims["username"].(string)
 	email, ok := claims["email"].(string)
+	image, ok := claims["image"].(string)
+	imageBg, ok := claims["image_bg"].(string)
+	description, ok := claims["description"].(string)
 
-	responseData := map[string]string{"username": username, "email": email}
+	responseData := map[string]string{"username": username, "email": email, "image": image, "image_bg": imageBg, "description": description}
 
 	if !ok {
 		w.WriteHeader(http.StatusInternalServerError)

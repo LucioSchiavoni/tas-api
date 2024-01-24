@@ -10,12 +10,15 @@ import (
 
 var secretKey = []byte(os.Getenv("HASH_PWD"))
 
-func CreateToken(username string, email string) (string, error) {
+func CreateToken(username string, email string, image string, imageBg string, description string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"email":    email,
-			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+			"username":    username,
+			"email":       email,
+			"image":       image,
+			"image_bg":    imageBg,
+			"description": description,
+			"exp":         time.Now().Add(time.Hour * 24).Unix(),
 		})
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
