@@ -28,7 +28,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 
 	if err != nil {
-		http.Error(w, "Error al aprsear UserID", http.StatusBadRequest)
+		http.Error(w, "Error al parsear UserID", http.StatusBadRequest)
 		return
 	}
 
@@ -58,7 +58,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(&post)
-
+	json.NewEncoder(w).Encode(map[string]interface{}{"message": "Post creado con éxito"})
 }
 
 func GetPostByIdUser(w http.ResponseWriter, r *http.Request) {
