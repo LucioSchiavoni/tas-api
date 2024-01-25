@@ -17,6 +17,8 @@ func main() {
 	r := mux.NewRouter()
 
 	db.DBConnection()
+	fs := http.FileServer(http.Dir("./images"))
+	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/", fs))
 
 	// Conexion
 	if isDevelopment() {
@@ -48,5 +50,5 @@ func main() {
 }
 
 func isDevelopment() bool {
-	return false
+	return true
 }

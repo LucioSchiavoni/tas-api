@@ -6,6 +6,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
@@ -16,33 +19,37 @@ import (
 func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (string, error) {
 	r.ParseMultipartForm(10 << 20)
 
-	file, _, err := r.FormFile(fieldName)
+	file, fileHeader, err := r.FormFile(fieldName)
 	if err != nil {
 		w.Write([]byte("Error al subir la imagen"))
 		return "", err
-
 	}
-
 	defer file.Close()
 
-	tempFile, err := os.CreateTemp("images", "upload-*.png")
+	fileExtension := filepath.Ext(fileHeader.Filename)
 
+	randomName := fmt.Sprintf("upload-%d%s", time.Now().UnixNano(), fileExtension)
+	filePath := filepath.Join("images", randomName)
+	filePath = strings.ReplaceAll(filePath, "\\", "/")
+
+	tempFile, err := os.Create(filePath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Error al crear el archivo temporal"})
 		return "", err
 	}
-
 	defer tempFile.Close()
 
 	_, err = io.Copy(tempFile, file)
-
 	if err != nil {
 		fmt.Println(err)
+		return "", err
 	}
 
-	return tempFile.Name(), nil
+	baseURL := "http://localhost:8080"
+	imageURL := baseURL + "/" + filePath
 
+	return imageURL, nil
 }
 
 func HashPassword(password string) (string, error) {
