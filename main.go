@@ -50,7 +50,7 @@ func main() {
 
 	handler := corsOptions.Handler(r)
 
-	http.ListenAndServe("0.0.0.0:8080", handler)
+	http.ListenAndServe(":8080", handler)
 
 }
 
