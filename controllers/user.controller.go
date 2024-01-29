@@ -46,7 +46,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 		return "", err
 	}
 
-	baseURL := "http://localhost:8080"
+	baseURL := os.Getenv("API")
 	imageURL := baseURL + "/" + filePath
 
 	return imageURL, nil
