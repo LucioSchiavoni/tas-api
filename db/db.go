@@ -14,7 +14,7 @@ var DB *gorm.DB
 
 func DBConnection() {
 
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error al cargar el .env")
 	}
