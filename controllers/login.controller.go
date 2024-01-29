@@ -26,8 +26,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fmt.Printf("The user request value %v", loginCredentials)
-
 	var user models.User
 	result := db.DB.Where("email = ?", loginCredentials.Email).First(&user)
 	if result.Error != nil {
@@ -36,7 +34,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if CheckPasswordHash(loginCredentials.Password, user.Password) {
+	if !CheckPasswordHash(loginCredentials.Password, user.Password) {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Invalid credentials")
 		return
