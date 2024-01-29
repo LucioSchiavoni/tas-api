@@ -35,13 +35,13 @@ func main() {
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
 	urlOrigin := os.Getenv("URL_WEB")
-	if urlOrigin == "" {
-		urlOrigin = "http://localhost:5173"
-	}
+	// if urlOrigin == "" {
+	// 	urlOrigin = "http://localhost:5173"
+	// }
 	corsOptions := cors.New(cors.Options{
 		AllowedOrigins: []string{
 			urlOrigin,
-			// "http://localhost:3000",
+			"http://localhost:5173",
 		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
