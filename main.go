@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
@@ -33,9 +34,13 @@ func main() {
 	routes.UserRouter(r)
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
+	urlOrigin := os.Getenv("URL_WEB")
+	if urlOrigin == "" {
+		urlOrigin = "http://localhost:5173"
+	}
 	corsOptions := cors.New(cors.Options{
 		AllowedOrigins: []string{
-			"http://localhost:5173",
+			urlOrigin,
 			// "http://localhost:3000",
 		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
