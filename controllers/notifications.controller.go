@@ -107,7 +107,8 @@ func GetLikesByIdPost(w http.ResponseWriter, r *http.Request) {
 
 // Comments
 func CreateComments(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "json/application")
+	w.Header().Set("Content-Type", "application/json")
+
 	var comments models.Comments
 	json.NewDecoder(r.Body).Decode(&comments)
 
