@@ -7,6 +7,6 @@ import (
 
 func ChatRouter(router *mux.Router) {
 	router.HandleFunc("/message", controllers.CreateMessageByUser).Methods("POST")
-	router.HandleFunc("/messsage", controllers.GetMessageByUser).Methods("GET")
+	router.HandleFunc("/message", controllers.GetMessageByUser).Methods("GET")
 
 }
