@@ -53,3 +53,19 @@ Type: si es de tipo comments o like
 PostID: id de ese post creado
 Check: por defecto viene en falso pero al verlo debe cambiar a true 
 CreatorID: id del usuario que hizo la notificacion (persona que hizo el like o creo el comentario)
+
+
+CHAT:
+
+Crear mensaje:
+
+POST: 
+http://localhost:8080/message?sender={1}&recipient={4}
+
+{
+  "Sender": "{1}",
+  "Recipient": "{2}",
+  "Content": "Hola, ¿cómo estás?"
+}
+
+Falta el get message 
