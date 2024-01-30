@@ -29,11 +29,13 @@ func main() {
 		db.DB.AutoMigrate(models.Comments{})
 		db.DB.AutoMigrate(models.Likes{})
 		db.DB.AutoMigrate(models.Friends{})
+		db.DB.AutoMigrate(models.ChatMessage{})
 	}
 
 	routes.UserRouter(r)
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
+	routes.ChatRouter(r)
 	urlOrigin := os.Getenv("URL_WEB")
 	// if urlOrigin == "" {
 	// 	urlOrigin = "http://localhost:5173"
