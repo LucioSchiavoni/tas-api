@@ -1,15 +1,16 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/gorilla/mux"
@@ -29,27 +30,36 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	fileExtension := filepath.Ext(fileHeader.Filename)
 
 	randomName := fmt.Sprintf("upload-%d%s", time.Now().UnixNano(), fileExtension)
-	filePath := filepath.Join("images", randomName)
-	filePath = strings.ReplaceAll(filePath, "\\", "/")
+	objectName := "images/" + randomName
 
-	tempFile, err := os.Create(filePath)
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al crear el archivo temporal"})
+		fmt.Fprintf(w, "Error al crear el cliente de Google Cloud Storage: %s", err.Error())
 		return "", err
 	}
-	defer tempFile.Close()
+	defer client.Close()
 
-	_, err = io.Copy(tempFile, file)
-	if err != nil {
-		fmt.Println(err)
+	bucketName := "social-go"
+	bucket := client.Bucket(bucketName)
+
+	object := bucket.Object(objectName)
+	wc := object.NewWriter(ctx)
+
+	if _, err = io.Copy(wc, file); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error al copiar el archivo al bucket de GCS: %s", err.Error())
 		return "", err
 	}
 
-	// baseURL := os.Getenv("API")
-	baseURL := "http://0.0.0.0:8080"
-	imageURL := baseURL + "/" + filePath
+	if err := wc.Close(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error al cerrar el escritor del archivo en GCS: %s", err.Error())
+		return "", err
+	}
 
+	imageURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
 	return imageURL, nil
 }
 
