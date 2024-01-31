@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "socialapp-go",
+  "private_key_id": "39fc0a7f2ed247d39c818bb35f0b85dac073c066",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCmtMhJXWIOL4Hl\nYtq/0tocqVzXCDAet+9b87remE4Dn3vU093uPW00lNp2pOi/YNVLKM2Nb4p5gWbC\n7niiAc/l+vjYBe8hOVlpFxWl2hy7rJoi9009YZjX7hn4lgoFz0jJUqSXH3DSVhpi\n0Hyb1/mJpjBEIQiAWi4ET7aA9r9OVNOVhUK/+qF3+VK42OO4PY+3gAcPsluOCYdK\nSwBtxslXU+tYdsOKYCp7YpGqJOoxpwiukKfaD9zvWyAz4X7hqFtCPCW15mv9AanM\nIE0pzxCAb/jU9sJCSLOE2tdsPb9cFOVDv1bGbO6MXyZT/JjPwLGTF8IM++N4Ehoi\nY8vJH1f9AgMBAAECggEACm/RBj7Rb7/rqvfIaDAENb0osdGyaYnsc15L+bmhULrA\nXu+wukSgPKWBE+J5K9odIGp6i/tKuRav305cwQ/J+0T+JVAhy3uyrFCkq1B/cgR5\nVe0Tqd8dWY9vks+Z6wkyLmB9K3TtdE2tszgIRR19Yu/Dn9BNnvOGZAC1lVddXML6\n1DegPbPj9DIWcwjSPX4TvXtIPKI8ZvURDTMjbQ7DsV/k/+nMulREHY/pjro/4yTP\nVsDl5r1/F6Xr2DViccqVrutwjAH7YwERxE81+CrBMhRL6diqeSMYDKmDS1QpxdoR\nCNAd+q+ZB+rhzUmUNTWNE7vmNXfoMhTSmg6Iw/QeZQKBgQDgG2vRkU/DaLALiIwT\nkLCjrvl1vxWhzeSuD+4Ctq3DpZ0h13CpKClui2rFr+JX268gXXzyD/Pw+hdoiEks\nYFrIYawaN1ob79t2kdkZ96D7AtwENg01Uszq449PVTC749KBk/La5l1WQVFz2unO\nTzECm3i+PcT1XDTuWZM9v2qNnwKBgQC+bidjv0l+J93b3UzLxHMzkErP9oyQPzXB\nsGZPoCAGnxWKD9rTD1sU68kudO/8oSvZ3mIZBHwEmCw6EHiF9/kwM6m4y5InLz/7\nnIyQY1z7K7/hhPuf6lT2oRKhrmN8A0gi/gfVPB4We5nZpTlhsc3/H/27SQ/EnjPa\n7h4O+X284wKBgHe5rowzGW3Hy+UdedgqAHQx0ku5XhEnMfhbwkfo2EQhgiTGOAXm\n0tuf19bs8/sD/jdIOqwHIcenlEHgLVdr0pQiuhL3Z0hth818dYON646uJGSLi9rk\n9Vy3XaSAWpzGRXu8Uo3nbA3cr2s5lJcHb6N487SOw15heFWtvR/L11z5AoGAfq3u\nnCdrL3Y724A7Dy6vaDTr365m0aqLCz9awEuIIn9/p6lma5NChwdXfQUjhM5+yl9q\nqLPYAIJuoW3Fj3Fnno4vsJQTtOd0y9/XjlHbT+dJrS926GnNfYenSlElMyFHwqd0\n9IAaj+BHd4a3Rmsu2zIf64/t4mFPo6tV6aZE4/sCgYBjBXqv5oZ4n5vYPvnCNzuK\nW1hh4WJVOuKy/3TUC+dkGMGR0lKdVS15N8AJ1fGu+a8qdAPdP4VRtS/IrcDL4oeK\nFuV1UG7SvB3amtFRuZrz4PKyX4Ux150fOYgbUCoqToARnXC2K0vKOlkRnqyZaMaA\nkMLkBWsA8hfYOU/Ksb2sKA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "goservice@socialapp-go.iam.gserviceaccount.com",
+  "client_id": "110340068698207188273",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/goservice%40socialapp-go.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

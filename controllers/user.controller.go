@@ -15,6 +15,7 @@ import (
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/api/option"
 )
 
 func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (string, error) {
@@ -30,10 +31,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	fileExtension := filepath.Ext(fileHeader.Filename)
 
 	randomName := fmt.Sprintf("upload-%d%s", time.Now().UnixNano(), fileExtension)
-	objectName := "//" + randomName
 
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("../socialapp-go-39fc0a7f2ed2.json"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error al crear el cliente de Google Cloud Storage: %s", err.Error())
@@ -42,8 +42,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	defer client.Close()
 
 	bucketName := "social-go"
-	bucket := client.Bucket(bucketName)
+	objectName := "images/" + randomName
 
+	bucket := client.Bucket(bucketName)
 	object := bucket.Object(objectName)
 	wc := object.NewWriter(ctx)
 
@@ -60,6 +61,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	}
 
 	imageURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
+
 	return imageURL, nil
 }
 
