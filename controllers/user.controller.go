@@ -29,7 +29,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	fileExtension := filepath.Ext(fileHeader.Filename)
 
 	randomName := fmt.Sprintf("upload-%d%s", time.Now().UnixNano(), fileExtension)
-	filePath := filepath.Join("images", randomName)
+	filePath := filepath.Join("/", randomName)
 	filePath = strings.ReplaceAll(filePath, "\\", "/")
 
 	tempFile, err := os.Create(filePath)
