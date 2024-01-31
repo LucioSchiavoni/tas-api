@@ -8,15 +8,13 @@ import (
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/LucioSchiavoni/tas-api/routes"
-	socketio "github.com/googollee/go-socket.io"
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
 func main() {
 	fmt.Println("Corriendo server en go")
-
-	server := socketio.NewServer(nil)
 
 	r := mux.NewRouter()
 
@@ -37,7 +35,6 @@ func main() {
 	routes.UserRouter(r)
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
-	routes.ChatRouter(r, server)
 
 	urlOrigin := os.Getenv("URL_WEB")
 	// if urlOrigin == "" {
@@ -55,15 +52,11 @@ func main() {
 
 	handler := corsOptions.Handler(r)
 
-<<<<<<< HEAD
-	http.ListenAndServe("0.0.0.0:8080", handler)
-=======
 	port := os.Getenv("PORT")
 
 	addr := fmt.Sprintf("0.0.0.0:%s", port)
 
 	http.ListenAndServe(addr, handler)
->>>>>>> e95fbb4ece32a9cb57d80676341860000c7519a6
 
 }
 
