@@ -55,7 +55,11 @@ func main() {
 
 	handler := corsOptions.Handler(r)
 
-	http.ListenAndServe(":8080", handler)
+	port := os.Getenv("PORT")
+
+	addr := fmt.Sprintf("0.0.0.0:%s", port)
+
+	http.ListenAndServe(addr, handler)
 
 }
 
