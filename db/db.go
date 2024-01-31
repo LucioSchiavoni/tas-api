@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -14,11 +13,11 @@ var DB *gorm.DB
 
 func DBConnection() {
 
-	err := godotenv.Load()
+	// err := godotenv.Load()
 
-	if err != nil {
-		log.Fatal("Error al cargar el .env")
-	}
+	// if err != nil {
+	// 	log.Fatal("Error al cargar el .env")
+	// }
 
 	var DNS = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=UTC",
 		os.Getenv("DB_USER"),
