@@ -1,36 +1,32 @@
 package controllers
 
 import (
-	"encoding/json"
-	"net/http"
+	"log"
+	"time"
 
-	"github.com/LucioSchiavoni/tas-api/db"
-	"github.com/LucioSchiavoni/tas-api/models"
+	socketio "github.com/googollee/go-socket.io"
 )
 
-func CreateMessageByUser(w http.ResponseWriter, r *http.Request) {
-	var chatMessage models.ChatMessage
-	err := json.NewDecoder(r.Body).Decode(&chatMessage)
+func HandleConnection(s socketio.Conn) error {
+	log.Println("Usuario conectado:", s.ID())
 
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error en la creacion del mensaje"})
-		return
-	}
+	//Unirse a la sala
+	s.Join("room")
 
-	db.DB.Create(&chatMessage)
-	json.NewEncoder(w).Encode(&chatMessage)
+	//Emitir mensaje una vez dentro de la sala
+	s.Emit("chat message", "Servidor", "¡Bienvenido a la sala general!")
+
+	return nil
 }
 
-func GetMessageByUser(w http.ResponseWriter, r *http.Request) {
+func HandleChatMessage(server *socketio.Server, s socketio.Conn, username string, msg string) {
 
-	params := r.URL.Query()
-	sender := params.Get("sender")
-	recipient := params.Get("recipient")
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	var chatMessage []models.ChatMessage
+	// devolver el mensaje
+	server.BroadcastToRoom("/", "room", "chat message", username, msg, timestamp)
+}
 
-	db.DB.Where("(sender = ? AND recipient = ?) OR (sender = ? AND recipient = ?)", sender, recipient, recipient, sender).Find(&chatMessage)
-	json.NewEncoder(w).Encode(&chatMessage)
-
+func HandleDisconnection(s socketio.Conn, reason string) {
+	log.Println("Usuario desconectado:", s.ID(), "Motivo:", reason)
 }

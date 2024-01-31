@@ -8,12 +8,15 @@ import (
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/LucioSchiavoni/tas-api/routes"
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
 func main() {
 	fmt.Println("Corriendo server en go")
+
+	server := socketio.NewServer(nil)
 
 	r := mux.NewRouter()
 
@@ -29,13 +32,13 @@ func main() {
 		db.DB.AutoMigrate(models.Comments{})
 		db.DB.AutoMigrate(models.Likes{})
 		db.DB.AutoMigrate(models.Friends{})
-		db.DB.AutoMigrate(models.ChatMessage{})
 	}
 
 	routes.UserRouter(r)
 	routes.PostRoutes(r)
 	routes.NotificationRouter(r)
-	routes.ChatRouter(r)
+	routes.ChatRouter(r, server)
+
 	urlOrigin := os.Getenv("URL_WEB")
 	// if urlOrigin == "" {
 	// 	urlOrigin = "http://localhost:5173"
