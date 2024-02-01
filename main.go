@@ -61,5 +61,5 @@ func main() {
 }
 
 func isDevelopment() bool {
-	return true
+	return false
 }

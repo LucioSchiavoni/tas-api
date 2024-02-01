@@ -162,8 +162,10 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.DB.Delete(&user)
+	db.DB.Unscoped().Delete(&user)
+
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User deleted permanently"))
 }
 
 // Obtener usuario por su id
