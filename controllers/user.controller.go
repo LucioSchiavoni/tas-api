@@ -187,6 +187,7 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 
 // Editar usuario
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
 	var user models.User
 
 	err := r.ParseMultipartForm(10 << 20)
@@ -196,9 +197,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := r.FormValue("id")
-
-	err = db.DB.First(&user, userID).Error
+	err = db.DB.First(&user, params["id"]).Error
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Usuario no encontrado"})
