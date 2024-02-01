@@ -37,9 +37,6 @@ func main() {
 	routes.NotificationRouter(r)
 
 	urlOrigin := os.Getenv("URL_WEB")
-	// if urlOrigin == "" {
-	// 	urlOrigin = "http://localhost:5173"
-	// }
 	corsOptions := cors.New(cors.Options{
 		AllowedOrigins: []string{
 			urlOrigin,
