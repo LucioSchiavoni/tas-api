@@ -31,9 +31,14 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	fileExtension := filepath.Ext(fileHeader.Filename)
 
 	randomName := fmt.Sprintf("upload-%d%s", time.Now().UnixNano(), fileExtension)
+	credPath, err := filepath.Abs("socialapp-go-39fc0a7f2ed2.json")
+	if err != nil {
+		fmt.Printf("Error del json: %s", err.Error())
+		return "", err
+	}
 
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile("../socialapp-go-39fc0a7f2ed2.json"))
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credPath))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error al crear el cliente de Google Cloud Storage: %s", err.Error())
