@@ -184,3 +184,62 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 	db.DB.Model(&user).Association("Posts").Find(&user.Post)
 	json.NewEncoder(w).Encode(&user)
 }
+
+// Editar usuario
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error de formato FormData"})
+		return
+	}
+
+	userID := r.FormValue("id")
+
+	err = db.DB.First(&user, userID).Error
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Usuario no encontrado"})
+		return
+	}
+
+	// Se cambian los datos solo si hubo un cambio en el campo
+	if username := r.FormValue("username"); username != "" {
+		user.Username = username
+	}
+
+	if password := r.FormValue("password"); password != "" {
+
+		secret := os.Getenv("HASH_PWD")
+		hash, err := HashPassword(secret + password)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Error al generar el hash de la contraseña"})
+			return
+		}
+		user.Password = string(hash)
+	}
+
+	if image, err := UploadFile(w, r, "image"); err == nil {
+		user.Image = image
+	}
+
+	if imageBg, err := UploadFile(w, r, "image_bg"); err == nil {
+		user.ImageBg = imageBg
+	}
+	if description := r.FormValue("description"); description != "" {
+		user.Description = description
+	}
+
+	err = db.DB.Save(&user).Error
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error al actualizar el usuario en la base de datos"})
+		return
+	}
+
+	user.Password = ""
+	json.NewEncoder(w).Encode(&user)
+}
