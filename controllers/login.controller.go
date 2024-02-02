@@ -34,7 +34,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if CheckPasswordHash(loginCredentials.Password, user.Password) {
+	if !CheckPasswordHash(loginCredentials.Password, user.Password) {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Invalid credentials")
 		return
