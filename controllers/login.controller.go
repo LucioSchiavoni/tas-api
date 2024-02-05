@@ -1,14 +1,15 @@
 package controllers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/middlewares"
 	"github.com/LucioSchiavoni/tas-api/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,12 +36,23 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storedHash := bytes.TrimSpace([]byte(user.Password))
-	passwordCredentials := bytes.TrimSpace([]byte(loginCredentials.Password))
+	// if !CheckPasswordHash(loginCredentials.Password, storedPassowrd) {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	json.NewEncoder(w).Encode(map[string]string{"error": "Credenciales incorrectas"})
+	// 	return
+	// }
 
-	if CheckPasswordHash(string(passwordCredentials), string(storedHash)) {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Credenciales incorrectas"})
+	fmt.Println("Contraseña ingresada:", loginCredentials.Password)
+	fmt.Println("Hash almacenado:", user.Password)
+
+	cleanedPassword := strings.TrimSpace(loginCredentials.Password)
+	knowHash := "$2a$14$JxkiJn3rxfwoqIu1eRFf2.xr/c14Z.M0ItWoToM8HLBJuA2kfAMgK"
+
+	fmt.Println("Resultado de la comparación:", bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(cleanedPassword)))
+
+	err = bcrypt.CompareHashAndPassword([]byte(knowHash), []byte(loginCredentials.Password))
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
