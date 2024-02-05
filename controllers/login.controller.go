@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -34,9 +35,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if CheckPasswordHash(loginCredentials.Password, user.Password) {
+	storedHash := bytes.TrimSpace([]byte(user.Password))
+	passwordCredentials := bytes.TrimSpace([]byte(loginCredentials.Password))
+
+	if CheckPasswordHash(string(passwordCredentials), string(storedHash)) {
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid credentials"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Credenciales incorrectas"})
 		return
 	}
 
