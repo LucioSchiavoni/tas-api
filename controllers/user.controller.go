@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -70,14 +69,14 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	return imageURL, nil
 }
 
+func CheckPasswordHash(hash, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
-}
-
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -96,11 +95,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	user.ImageBg = r.FormValue("image_bg")
 	user.Description = r.FormValue("description")
 
-	// Hash password
-	secret := os.Getenv("HASH_PWD")
 	password := r.FormValue("password")
 
-	hash, err := HashPassword(secret + password)
+	hash, err := HashPassword(password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Error al generar el hash de la contraseña"})
@@ -211,8 +208,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	if password := r.FormValue("password"); password != "" {
 
-		secret := os.Getenv("HASH_PWD")
-		hash, err := HashPassword(secret + password)
+		hash, err := HashPassword(password)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]string{"error": "Error al generar el hash de la contraseña"})

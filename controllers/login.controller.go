@@ -33,12 +33,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Invalid credentials")
 		return
 	}
-	fmt.Println("Contraseña ingresada:", loginCredentials.Password)
-	fmt.Println("Hash almacenado:", user.Password)
-	fmt.Print("Username: ", user.Username)
-	fmt.Print("Username: ", user.Email)
 
-	if CheckPasswordHash(user.Password, loginCredentials.Password) {
+	if !CheckPasswordHash(user.Password, loginCredentials.Password) {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Credenciales incorrectas"})
 		return
