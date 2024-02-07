@@ -85,6 +85,10 @@ func GetAllPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for i, j := 0, len(post)-1; i < j; i, j = i+1, j-1 {
+		post[i], post[j] = post[j], post[i]
+	}
+
 	json.NewEncoder(w).Encode(&post)
 }
 
