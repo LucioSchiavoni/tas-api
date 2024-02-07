@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -98,12 +97,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	user.Image = r.FormValue("image")
 	user.ImageBg = r.FormValue("image_bg")
 	user.Description = r.FormValue("description")
-
-	// Hash password
-	secret := os.Getenv("HASH_PWD")
 	password := r.FormValue("password")
 
-	hash, err := HashPassword(secret + password)
+	hash, err := HashPassword(password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Error al generar el hash de la contraseña"})
@@ -214,8 +210,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	if password := r.FormValue("password"); password != "" {
 
-		secret := os.Getenv("HASH_PWD")
-		hash, err := HashPassword(secret + password)
+		hash, err := HashPassword(password)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]string{"error": "Error al generar el hash de la contraseña"})
