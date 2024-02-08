@@ -93,6 +93,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user.Username = r.FormValue("username")
 	user.Email = r.FormValue("email")
+
 	user.Password = r.FormValue("password")
 	user.Image = r.FormValue("image")
 	user.ImageBg = r.FormValue("image_bg")
@@ -124,6 +125,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user.Image = imagePath
 	user.ImageBg = imagePathBg
+
+	result := db.DB.Where("email = ?", user.Email).First(&user)
+	if result.Error == nil {
+		errorMesage := map[string]string{"error": "Usuario ya registrado"}
+		json.NewEncoder(w).Encode(errorMesage)
+		return
+	}
 
 	createUser := db.DB.Create(&user)
 	err = createUser.Error
