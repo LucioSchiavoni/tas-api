@@ -76,6 +76,25 @@ func CreateLike(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&like)
 }
 
+func DeleteLike(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "json/application")
+
+	params := mux.Vars(r)
+
+	creatorId := params["creator_id"]
+	var likes models.Likes
+
+	json.NewDecoder(r.Body).Decode(&likes)
+
+	deleteLike := db.DB.Where("creator_id = ?", creatorId).Find(&likes).Unscoped().Delete(&likes)
+	if deleteLike.Error != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(deleteLike.Error.Error()))
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"success": "Like eliminado"})
+}
+
 func userExists(userID uint) bool {
 	var user models.User
 	result := db.DB.First(&user, userID)

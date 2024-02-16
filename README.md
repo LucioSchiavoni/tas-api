@@ -27,6 +27,9 @@ raw:
     "CreatorID":  //usuario que da el like
 }
 
+Quitar Like:
+DeleteLike: DELETE /like/{creator_id}  
+
 Comentarios: 
 
 Crear comentario: POST /comments
