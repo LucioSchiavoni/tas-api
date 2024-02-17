@@ -67,7 +67,7 @@ func GetPostByIdUser(w http.ResponseWriter, r *http.Request) {
 
 	userID := params["user_id"]
 	var post []models.Post
-	if err := db.DB.Where("user_id = ?", userID).Find(&post).Error; err != nil {
+	if err := db.DB.Where("user_id = ?", userID).Preload("User").Preload("Likes").Preload("Likes.User").Preload("Comments").Preload("Comments.User").Find(&post).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		w.Write([]byte("ID no encontrado"))
 		return
