@@ -81,12 +81,20 @@ func DeleteLike(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 
-	creatorId := params["creator_id"]
+	userId := params["user_id"]
+	id := params["id"]
 	var likes models.Likes
 
 	json.NewDecoder(r.Body).Decode(&likes)
 
-	deleteLike := db.DB.Where("creator_id = ?", creatorId).Find(&likes).Unscoped().Delete(&likes)
+	deleteLike := db.DB.Where("user_id = ? AND id = ?", userId, id).Find(&likes).Unscoped().Delete(&likes)
+
+	if !userExists(likes.UserID) {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "UserID no válido"})
+		return
+	}
+
 	if deleteLike.Error != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(deleteLike.Error.Error()))
