@@ -22,6 +22,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 
 	file, fileHeader, err := r.FormFile(fieldName)
 	if err != nil {
+		if err == http.ErrMissingFile {
+			return "", nil
+		}
 		w.Write([]byte("Error al subir la imagen"))
 		return "", err
 	}
@@ -111,20 +114,41 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Upload File
 	file, _, err := r.FormFile("image")
-	fileBg, _, err := r.FormFile("image_bg")
-
-	imagePath, err := UploadFile(w, r, "image")
-	imagePathBg, err := UploadFile(w, r, "image_bg")
-
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al subir la imagen"})
+		json.NewEncoder(w).Encode(map[string]string{"info": "Foto de perfil vacia"})
 	}
-	defer file.Close()
-	defer fileBg.Close()
-
-	user.Image = imagePath
-	user.ImageBg = imagePathBg
+	fileBg, _, err := r.FormFile("image_bg")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"info": "Foto de portada vacia"})
+	}
+	imagePath, err := UploadFile(w, r, "image")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error al utilizar la funcion UploadFile para image"})
+	}
+	imagePathBg, err := UploadFile(w, r, "image_bg")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error al utilizar la funcion UploadFile para image_bg"})
+	}
+	if err != nil {
+		// w.WriteHeader(http.StatusBadRequest)
+		// json.NewEncoder(w).Encode(map[string]string{"error": "Error al subir la imagen"})
+		user.Image = ""
+		user.ImageBg = ""
+	}
+	defer func() {
+		if file != nil {
+			file.Close()
+		}
+		if fileBg != nil {
+			fileBg.Close()
+		}
+	}()
+	if imagePath != "" {
+		user.Image = imagePath
+	}
+	if imagePathBg != "" {
+		user.Image = imagePathBg
+	}
 
 	result := db.DB.Where("email = ?", user.Email).First(&user)
 	if result.RowsAffected > 0 {
@@ -227,11 +251,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Password = string(hash)
 	}
 
-	if image, err := UploadFile(w, r, "image"); err == nil {
+	if image, err := UploadFile(w, r, "image"); err == nil && err != http.ErrMissingFile {
 		user.Image = image
 	}
 
-	if imageBg, err := UploadFile(w, r, "image_bg"); err == nil {
+	if imageBg, err := UploadFile(w, r, "image_bg"); err == nil && err != http.ErrMissingFile {
 		user.ImageBg = imageBg
 	}
 	if description := r.FormValue("description"); description != "" {
