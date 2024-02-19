@@ -127,7 +127,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	user.ImageBg = imagePathBg
 
 	result := db.DB.Where("email = ?", user.Email).First(&user)
-	if result.Error == nil {
+	if result.RowsAffected > 0 {
 		errorMesage := map[string]string{"error": "Usuario ya registrado"}
 		json.NewEncoder(w).Encode(errorMesage)
 		return
