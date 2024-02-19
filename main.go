@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/LucioSchiavoni/tas-api/chat"
 	"github.com/LucioSchiavoni/tas-api/db"
 	"github.com/LucioSchiavoni/tas-api/models"
 	"github.com/LucioSchiavoni/tas-api/routes"
-
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -30,6 +30,7 @@ func main() {
 		db.DB.AutoMigrate(models.Comments{})
 		db.DB.AutoMigrate(models.Likes{})
 		db.DB.AutoMigrate(models.Friends{})
+		db.DB.AutoMigrate(models.Message{})
 	}
 
 	routes.UserRouter(r)
@@ -42,13 +43,13 @@ func main() {
 			urlOrigin,
 			"http://localhost:5173",
 		},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	})
 
 	handler := corsOptions.Handler(r)
-
+	r.HandleFunc("/ws", chat.Handler)
 	port := os.Getenv("PORT")
 
 	addr := fmt.Sprintf("0.0.0.0:%s", port)

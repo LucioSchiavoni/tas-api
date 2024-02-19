@@ -14,4 +14,5 @@ type User struct {
 	Post          []Post          `gorm:"foreignKey:UserID"`
 	Notifications []Notifications `gorm:"foreignKey:UserID"`
 	Friends       []Friends       `gorm:"foreignKey:UserID"`
+	Message       []Message       `gorm:"foreignKey:UserID"`
 }
