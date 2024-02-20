@@ -49,7 +49,9 @@ func main() {
 	})
 
 	handler := corsOptions.Handler(r)
-	r.HandleFunc("/ws", chat.Handler)
+	r.HandleFunc("/ws", chat.Handle)
+
+	go chat.HandleMessages()
 	port := os.Getenv("PORT")
 
 	addr := fmt.Sprintf("0.0.0.0:%s", port)

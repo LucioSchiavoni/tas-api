@@ -1,61 +1,56 @@
 package chat
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 )
+
+var clients = make(map[*websocket.Conn]bool)
+var broadcast = make(chan Message)
+
+type Message struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Message  string `json:"message"`
+	Image    string `json:"image"`
+}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:    1024,
 	WriteBufferSize:   1024,
 	EnableCompression: true,
 	CheckOrigin: func(r *http.Request) bool {
-		return r.Header.Get("Origin") == "http://localhost:5173"
+		return r.Header.Get("Origin") == "http://localhost:5173" || r.Header.Get("Origin") == os.Getenv("URL_WEB")
 	},
 }
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func Handle(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == "OPTIONS" {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	conn, err := upgrader.Upgrade(w, r, nil)
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatal(err)
 	}
-	defer conn.Close()
+
+	defer ws.Close()
+
+	// registramos un nuevo cliente
+	clients[ws] = true
 
 	for {
-		messageType, p, err := conn.ReadMessage()
+		var msg Message
 
+		// Si hay un error, registramos ese error y eliminamos ese cliente de nuestro mapa global de clients
+		err := ws.ReadJSON(&msg)
 		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-				log.Println("Client closed connection")
-				return
-			}
-			log.Println(err)
-			return
+			log.Printf("error: %v", err)
+			delete(clients, ws)
+			break
 		}
 
-		messageJSON, err := json.Marshal(string(p))
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		if err := conn.WriteMessage(messageType, messageJSON); err != nil {
-			log.Println(err)
-			return
-		}
-
+		//enviar el contenido al canal
+		broadcast <- msg
 	}
 }
