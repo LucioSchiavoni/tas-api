@@ -4,10 +4,10 @@ import "log"
 
 func HandleMessages() {
 	for {
-		// Grab the next message from the broadcast channel
+		//captura el siguiente mensaje que esta en el canal
 		msg := <-broadcast
 
-		// Send it out to every client that is currently connected
+		// se envia a cada cliente que esta dentro del canal
 		for client := range clients {
 			err := client.WriteJSON(msg)
 			if err != nil {
