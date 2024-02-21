@@ -147,7 +147,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		user.Image = imagePath
 	}
 	if imagePathBg != "" {
-		user.Image = imagePathBg
+		user.ImageBg = imagePathBg ///CAMBIO POSIBLE CONFLICTO DE MERGE (CUIDADO)
 	}
 
 	result := db.DB.Where("email = ?", user.Email).First(&user)
