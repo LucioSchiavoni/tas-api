@@ -130,10 +130,10 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": "Error al utilizar la funcion UploadFile para image_bg"})
 	}
 	if err != nil {
-		// w.WriteHeader(http.StatusBadRequest)
-		// json.NewEncoder(w).Encode(map[string]string{"error": "Error al subir la imagen"})
-		user.Image = ""
-		user.ImageBg = ""
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error al subir la imagen"})
+		// user.Image = ""
+		// user.ImageBg = ""
 	}
 	defer func() {
 		if file != nil {
@@ -147,7 +147,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		user.Image = imagePath
 	}
 	if imagePathBg != "" {
-		user.ImageBg = imagePathBg ///CAMBIO POSIBLE CONFLICTO DE MERGE (CUIDADO)
+		user.ImageBg = imagePathBg
 	}
 
 	result := db.DB.Where("email = ?", user.Email).First(&user)
@@ -251,13 +251,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Password = string(hash)
 	}
 
-	if image, err := UploadFile(w, r, "image"); err == nil && err != http.ErrMissingFile {
-		user.Image = image
-	}
+	// if image, err := UploadFile(w, r, "image"); err == nil {
+	// 	user.Image = image
+	// }
 
-	if imageBg, err := UploadFile(w, r, "image_bg"); err == nil && err != http.ErrMissingFile {
-		user.ImageBg = imageBg
-	}
+	// if imageBg, err := UploadFile(w, r, "image_bg"); err == nil {
+	// 	user.ImageBg = imageBg
+	// }
 	if description := r.FormValue("description"); description != "" {
 		user.Description = description
 	}
