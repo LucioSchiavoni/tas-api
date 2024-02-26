@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -31,16 +32,28 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	defer file.Close()
 
 	fileExtension := filepath.Ext(fileHeader.Filename)
-
 	randomName := fmt.Sprintf("upload-%d%s", time.Now().UnixNano(), fileExtension)
-	credPath, err := filepath.Abs("socialapp-go-39fc0a7f2ed2.json")
-	if err != nil {
-		fmt.Printf("Error del json: %s", err.Error())
-		return "", err
-	}
+
+	// credPath, err := filepath.Abs("socialapp-go-39fc0a7f2ed2.json")
+	// if err != nil {
+	// 	fmt.Printf("Error del json: %s", err.Error())
+	// 	return "", err
+	// }
 
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credPath))
+	client, err := storage.NewClient(ctx, option.WithCredentialsJSON([]byte(fmt.Sprintf(`{
+		"type":"service_account",
+		"project_id":"%s",
+		"private_key_id":"%s",
+		"private_key":"%s",
+		"client_email":"%s",
+		"client_id":"%s",
+		"auth_uri":"https://accounts.google.com/o/oauth2/auth",
+		"token_uri":"https://accounts.google.com/o/oauth2/token",
+		"auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+		"client_x509_cert_url":"%s",
+		"universe_domain": "googleapis.com"
+	}`, os.Getenv("PROJECT_ID"), os.Getenv("PRIVATE_KEY_ID"), os.Getenv("PRIVATE_KEY"), os.Getenv("CLIENT_EMAIL"), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_CERT_URL")))))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error al crear el cliente de Google Cloud Storage: %s", err.Error())
