@@ -23,7 +23,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	description := r.FormValue("description")
 	userIDStr := r.FormValue("id")
 
-	file, _, err := r.FormFile("image_post")
+	file, _, _ := r.FormFile("image_post")
 
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 

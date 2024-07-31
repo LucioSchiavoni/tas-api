@@ -18,7 +18,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (string, error) {
+func UploadFileGoogleCloud(w http.ResponseWriter, r *http.Request, fieldName string) (string, error) {
 	r.ParseMultipartForm(10 << 20)
 
 	file, fileHeader, err := r.FormFile(fieldName)
@@ -85,6 +85,41 @@ func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (strin
 	return imageURL, nil
 }
 
+func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (string, error) {
+	r.ParseMultipartForm(10 << 20)
+
+	file, _, err := r.FormFile(fieldName)
+
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return "", nil
+		}
+		w.Write([]byte("Error al subir la imagen"))
+		return "", err
+	}
+
+	defer file.Close()
+
+	tempFile, err := os.CreateTemp("images", "upload-*.jpg")
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error al crear el archivo temporal"})
+		return "", err
+	}
+
+	defer tempFile.Close()
+
+	_, err = io.Copy(tempFile, file)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	urlPath := os.Getenv("URL_PATH")
+
+	return urlPath + tempFile.Name(), nil
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -102,87 +137,57 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error de formato FormData"})
+		http.Error(w, "Error de formato FormData", http.StatusBadRequest)
 		return
 	}
 
 	user.Username = r.FormValue("username")
 	user.Email = r.FormValue("email")
-
-	user.Password = r.FormValue("password")
-	user.Image = r.FormValue("image")
-	user.ImageBg = r.FormValue("image_bg")
 	user.Description = r.FormValue("description")
-	password := r.FormValue("password")
 
+	// Hash de la contraseña
+	password := r.FormValue("password")
 	hash, err := HashPassword(password)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al generar el hash de la contraseña"})
+		http.Error(w, "Error al generar el hash de la contraseña", http.StatusInternalServerError)
 		return
 	}
-
 	user.Password = string(hash)
 
-	// Upload File
-	file, _, err := r.FormFile("image")
-	if err != nil {
-		json.NewEncoder(w).Encode(map[string]string{"info": "Foto de perfil vacia"})
-	}
-	fileBg, _, err := r.FormFile("image_bg")
-	if err != nil {
-		json.NewEncoder(w).Encode(map[string]string{"info": "Foto de portada vacia"})
-	}
+	// Subir archivos de imagen
 	imagePath, err := UploadFile(w, r, "image")
 	if err != nil {
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al utilizar la funcion UploadFile para image"})
+		http.Error(w, fmt.Sprintf("Error al subir la imagen: %v", err), http.StatusInternalServerError)
+		return
 	}
 	imagePathBg, err := UploadFile(w, r, "image_bg")
 	if err != nil {
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al utilizar la funcion UploadFile para image_bg"})
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al subir la imagen"})
-		// user.Image = ""
-		// user.ImageBg = ""
-	}
-	defer func() {
-		if file != nil {
-			file.Close()
-		}
-		if fileBg != nil {
-			fileBg.Close()
-		}
-	}()
-	if imagePath != "" {
-		user.Image = imagePath
-	}
-	if imagePathBg != "" {
-		user.ImageBg = imagePathBg
+		http.Error(w, fmt.Sprintf("Error al subir la imagen de fondo: %v", err), http.StatusInternalServerError)
+		return
 	}
 
-	result := db.DB.Where("email = ?", user.Email).First(&user)
+	user.Image = filepath.Base(imagePath)
+	user.ImageBg = filepath.Base(imagePathBg)
+
+	// Verificar si el usuario ya existe
+	var existingUser models.User
+	result := db.DB.Where("email = ?", user.Email).First(&existingUser)
 	if result.RowsAffected > 0 {
-		errorMesage := map[string]string{"error": "Usuario ya registrado"}
-		json.NewEncoder(w).Encode(errorMesage)
+		http.Error(w, "Usuario ya registrado", http.StatusConflict)
 		return
 	}
 
-	createUser := db.DB.Create(&user)
-	err = createUser.Error
-
+	// Crear usuario
+	err = db.DB.Create(&user).Error
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"Error": err.Error()})
+		http.Error(w, fmt.Sprintf("Error al crear el usuario: %v", err), http.StatusBadRequest)
 		return
 	}
 
-	user.Password = ""
+	user.Password = "" // No devolver la contraseña en la respuesta
 
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(&user)
-
 }
 
 // Todos los usuarios
