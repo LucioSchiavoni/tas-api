@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -86,38 +87,42 @@ func UploadFileGoogleCloud(w http.ResponseWriter, r *http.Request, fieldName str
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request, fieldName string) (string, error) {
-	r.ParseMultipartForm(10 << 20)
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		return "", fmt.Errorf("error parsing form: %v", err)
+	}
 
-	file, _, err := r.FormFile(fieldName)
-
+	file, fileHeader, err := r.FormFile(fieldName)
 	if err != nil {
 		if err == http.ErrMissingFile {
 			return "", nil
 		}
-		w.Write([]byte("Error al subir la imagen"))
-		return "", err
+		return "", fmt.Errorf("error getting form file: %v", err)
 	}
-
 	defer file.Close()
 
-	tempFile, err := os.CreateTemp("images", "upload-*.jpg")
+	imageDir := "images"
+	filePath := filepath.Join(imageDir, fileHeader.Filename)
 
+	dst, err := os.Create(filePath)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al crear el archivo temporal"})
-		return "", err
+		return "", fmt.Errorf("error creating file: %v", err)
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		return "", fmt.Errorf("error copying file: %v", err)
 	}
 
-	defer tempFile.Close()
-
-	_, err = io.Copy(tempFile, file)
-
-	if err != nil {
-		fmt.Println(err)
-	}
 	urlPath := os.Getenv("URL_PATH")
+	if urlPath == "" {
+		urlPath = "http://localhost:8080"
+	}
 
-	return urlPath + tempFile.Name(), nil
+	fileURL := fmt.Sprintf("%s/images/%s", strings.TrimRight(urlPath, "/"), fileHeader.Filename)
+
+	return fileURL, nil
 }
 
 func HashPassword(password string) (string, error) {
@@ -166,8 +171,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Image = filepath.Base(imagePath)
-	user.ImageBg = filepath.Base(imagePathBg)
+	user.Image = imagePath
+	user.ImageBg = imagePathBg
 
 	// Verificar si el usuario ya existe
 	var existingUser models.User
