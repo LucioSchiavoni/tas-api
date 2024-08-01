@@ -274,13 +274,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Password = string(hash)
 	}
 
-	// if image, err := UploadFile(w, r, "image"); err == nil {
-	// 	user.Image = image
-	// }
+	if image, err := UploadFile(w, r, "image"); err == nil {
+		user.Image = image
+	}
 
-	// if imageBg, err := UploadFile(w, r, "image_bg"); err == nil {
-	// 	user.ImageBg = imageBg
-	// }
+	if imageBg, err := UploadFile(w, r, "image_bg"); err == nil {
+		user.ImageBg = imageBg
+	}
 	if description := r.FormValue("description"); description != "" {
 		user.Description = description
 	}
